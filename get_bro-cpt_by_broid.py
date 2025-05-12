@@ -63,8 +63,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
                 df = pd.DataFrame(data).apply(pd.to_numeric)
                 df.columns = column_names
                 df.sort_values('depth')
-                df['surface_level_z'] = surface_level_z
-                data_dict[bro_id] = df
+                data_dict[bro_id] = {'df': df, 'surface_level_z': surface_level_z}
             else:
                 print(f"No <cptcommon:values> element found in the XML for {bro_id}.")
         else:
@@ -81,8 +80,9 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
         ax2 = fig.add_subplot(gs[1], sharey=ax1)
         ax3 = fig.add_subplot(gs[2], sharey=ax1)
         
-        for bro_id, df in data_dict.items():
-            surface_level_z = df['surface_level_z'].iloc[0]
+        for bro_id, data in data_dict.items():
+            df = data['df']
+            surface_level_z = data['surface_level_z']
             
             ax1.plot(df['coneResistance'], surface_level_z - df['depth'], label=bro_id)
             ax2.plot(df['frictionRatio'], surface_level_z - df['depth'], label=bro_id)
@@ -104,12 +104,12 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
         ax2.set_xlim(0, 10)
         ax2.invert_xaxis()
         ax2.grid()
-        ax2.axhline(y=surface_level_z, color='grey', linestyle='--')
+        
         
         ax3.set_xlabel('Pore Pressure [MPa]')
         ax3.set_xlim(0, 1)
         ax3.grid()
-        ax3.axhline(y=surface_level_z, color='grey', linestyle='--')
+        
 
         path = os.path.join(os.path.expanduser("~"), 'Downloads')
         fig.savefig(os.path.join(path, 'combined_plot.png'), dpi=300, bbox_inches='tight')
@@ -118,6 +118,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
 
 # Example usage
 cpt_dict = get_brocpt_by_broid(['CPT000000225352', 'CPT000000225353'])
-for bro_id, df in cpt_dict.items():
+for bro_id, data in cpt_dict.items():
     print(f"Data for {bro_id}:")
-    print(df.head(100000))
+    print(data['df'].head(100000))
+    print(f"Surface level: {data['surface_level_z']}")
