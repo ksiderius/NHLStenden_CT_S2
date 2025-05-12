@@ -53,7 +53,7 @@ else:
 
 # Plotting
 fig, ax1 = plt.subplots(figsize=(6, 10))
-ax1.plot(df[3], surface_level_z-df[0])
+ax1.plot(df[3], surface_level_z-df[0], color='#005AA7')
 ax1.set_xlabel('cone resistance [MPa]')
 ax1.set_ylabel('depth [m] NAP')
 ax1.set_title(bro_id)
@@ -65,8 +65,8 @@ ax1.axhline(y=surface_level_z, color='grey', linestyle='--')
 
 # Secondary x-axis
 ax2 = ax1.twiny()
-ax2.plot(df[24], surface_level_z - df[0], color='red')
-ax2.set_xlabel('Friction ratio [-]', color='red')
+ax2.plot(df[24], surface_level_z - df[0], color='#E52329')
+ax2.set_xlabel('Friction ratio [-]', color='#E52329')
 ax2.set_xlim(0, 30)
 ax2.invert_xaxis()
 
