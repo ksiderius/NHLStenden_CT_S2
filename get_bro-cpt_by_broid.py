@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import matplotlib.gridspec as gridspec
 
 # Function to parse column names from the XML schema URL (manual due to slow response)
 def parse_column_names_from_schema(schema_url='https://schema.broservices.nl/xsd/cptcommon/1.1/cpttestresult_record.xml'):
@@ -15,9 +16,7 @@ def parse_column_names_from_schema(schema_url='https://schema.broservices.nl/xsd
     #     column_names = []
     #     for field in root.findall('.//swe:field', ns):
     #         column_names.append(field.attrib['name'])
-        
-        
-       
+          
     #     return column_names
     # else:
     #     print(f"Failed to fetch schema. Status code: {response.status_code}")
@@ -29,6 +28,8 @@ def parse_column_names_from_schema(schema_url='https://schema.broservices.nl/xsd
 # Function to get CPT data by BRO ID
 def get_brocpt_by_broid(bro_id, safe_fig=True):
     url = f"https://publiek.broservices.nl/sr/cpt/v1/objects/{bro_id}"
+    
+    
     response = requests.get(url)
     
     if response.status_code == 200:
@@ -53,6 +54,7 @@ def get_brocpt_by_broid(bro_id, safe_fig=True):
 
             column_names = parse_column_names_from_schema()
             df.columns = column_names
+            df.sort_values('depth')
         else:
             print("No <cptcommon:values> element found in the XML.")
             return None
@@ -61,20 +63,41 @@ def get_brocpt_by_broid(bro_id, safe_fig=True):
         return None
 
     if safe_fig:
-        fig, ax1 = plt.subplots(figsize=(6, 10))
-        ax1.plot(df['coneResistance'], surface_level_z - df['depth'], color='#005AA7')
+        # Create two subplots side by side
+        # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6), sharey=True)
+        fig = plt.figure(figsize=(12, 16))
+        gs = gridspec.GridSpec(1, 3, width_ratios=[3, 1, 1])
+        
+        # Left plot: Cone resistance
+        ax1 = fig.add_subplot(gs[0])
+        ax1.plot(df['coneResistance'], surface_level_z - df['depth'], label=bro_id)
         ax1.set_xlabel('cone resistance [MPa]')
         ax1.set_ylabel('depth [m] NAP')
-        ax1.set_title(bro_id)
         ax1.set_xlim(0, 30)
         ax1.grid()
         ax1.axhline(y=surface_level_z, color='grey', linestyle='--')
-
-        ax2 = ax1.twiny()
-        ax2.plot(df['frictionRatio'], surface_level_z - df['depth'], color='#E52329')
-        ax2.set_xlabel('Friction ratio [-]', color='#E52329')
-        ax2.set_xlim(0, 30)
+        ax1.legend(loc=4)
+        
+        # Right plot: Friction ratio
+        ax2 = fig.add_subplot(gs[1], sharey=ax1)
+        ax2.plot(df['frictionRatio'], surface_level_z - df['depth'],  label=bro_id)
+        ax2.set_xlabel('Friction ratio [-]')
+        ax2.set_xlim(0, 10)
         ax2.invert_xaxis()
+        ax2.grid()
+        ax2.axhline(y=surface_level_z, color='grey', linestyle='--')
+
+        
+        # Third subplot: Replace 'exampleData' with your actual third variable
+        ax3 = fig.add_subplot(gs[2], sharey=ax1)
+        ax3.plot(df['porePressureU1'], surface_level_z - df['depth'], label=bro_id)
+        ax3.plot(df['porePressureU2'], surface_level_z - df['depth'], label=bro_id)
+        ax3.plot(df['porePressureU3'], surface_level_z - df['depth'], label=bro_id)
+        ax3.set_xlabel('Pore Pressure [MPa]')
+        ax3.set_xlim(0, 1)
+        ax3.grid()
+        ax3.axhline(y=surface_level_z, color='grey', linestyle='--')
+
 
         path = os.path.join(os.path.expanduser("~"), 'Downloads')
         fig.savefig(os.path.join(path, bro_id + '.png'), dpi=300, bbox_inches='tight')
@@ -83,5 +106,5 @@ def get_brocpt_by_broid(bro_id, safe_fig=True):
 
 # Example usage
 
-cpt = get_brocpt_by_broid('CPT000000225441')
-print(cpt.head())
+cpt = get_brocpt_by_broid('CPT000000225352')
+print(cpt.head(100000))
