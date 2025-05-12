@@ -63,7 +63,6 @@ ax1.grid()
 
 ax1.axhline(y=surface_level_z, color='grey', linestyle='--')
 
-
 # Secondary x-axis
 ax2 = ax1.twiny()
 ax2.plot(df[24], surface_level_z - df[0], color='red')
