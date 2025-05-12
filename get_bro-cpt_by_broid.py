@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import os
 
 # BRO ID
-bro_id = "CPT000000053405"
+bro_id = "CPT000000225472"
 
 # Fetch the XML
 url = f"https://publiek.broservices.nl/sr/cpt/v1/objects/{bro_id}"
@@ -55,23 +55,25 @@ else:
 fig, ax1 = plt.subplots(figsize=(6, 10))
 ax1.plot(df[3], surface_level_z-df[0])
 ax1.set_xlabel('cone resistance [MPa]')
-ax1.set_ylabel('depth [m]')
+ax1.set_ylabel('depth [m] NAP')
 ax1.set_title(bro_id)
 
 ax1.set_xlim(0, 30)
 ax1.grid()
 
+ax1.axhline(y=surface_level_z, color='grey', linestyle='--')
 
 
 # Secondary x-axis
 ax2 = ax1.twiny()
 ax2.plot(df[24], surface_level_z - df[0], color='red')
-ax2.set_xlabel('Wrijvingsgetal [-]', color='red')
+ax2.set_xlabel('Friction ratio [-]', color='red')
 ax2.set_xlim(0, 30)
 ax2.invert_xaxis()
 
-
+# Save image
 home_directory = os.path.expanduser("~")
 # Save the figure
 path = home_directory + r'\Downloads'
-fig.savefig(os.path.join(path, 'plot.png'), dpi=300, bbox_inches='tight')
+fname = bro_id+'.png'
+fig.savefig(os.path.join(path, fname), dpi=300, bbox_inches='tight')
