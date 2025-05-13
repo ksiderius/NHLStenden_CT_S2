@@ -72,7 +72,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
         ax1 = fig.add_subplot(gs[0])
         ax2 = fig.add_subplot(gs[1], sharey=ax1)
         ax3 = fig.add_subplot(gs[2], sharey=ax1)
-        
+
         for bro_id, data in data_dict.items():
             df = data['df']
             df['ref_depth'] = data['surface_level_z'] - df['depth']
@@ -104,12 +104,14 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
             ax3.axhline(y= max_exp_depth, color=last_color, linestyle='--')
         
         ax1.set_xlabel('Cone resistance [MPa]')
-        ax1.set_ylabel('depth [m] NAP')
+        ax1.set_ylabel('depth [m] REF')
         ax1.set_xlim(0, 30)
         ax1.grid(visible=True, which='major', color='grey', linestyle='-')
         ax1.minorticks_on()
         ax1.grid(visible=True, which='minor', color='grey', linestyle='--')
-        ax1.legend(loc=4)
+        
+        if len(data_dict.items()) <5: #if more than 5 CPT's are selected do not plot legend
+            ax1.legend(loc=4)
         
         ax2.set_xlabel('Friction ratio [-]')
         ax2.set_xlim(0, 10)
@@ -138,7 +140,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
     return data_dict
 
 # Example usage
-cpt_dict = get_brocpt_by_broid(['CPT000000225352', 'CPT000000225353', 'CPT000000225395', 'CPT000000225478'])
+cpt_dict = get_brocpt_by_broid(['CPT000000225352', 'CPT000000225353', 'CPT000000225395', 'CPT000000225478', 'CPT000000225391', 'CPT000000225445'])
 for bro_id, data in cpt_dict.items():
     print(f"Data for {bro_id}:")
     print(data['df'].head(100000))
