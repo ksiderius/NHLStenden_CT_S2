@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import matplotlib.gridspec as gridspec
+from matplotlib.lines import Line2D
 
 # Function to parse column names from the XML schema URL (manual due to slow response)
 def parse_column_names_from_schema(schema_url='https://schema.broservices.nl/xsd/cptcommon/1.1/cpttestresult_record.xml'):
@@ -24,14 +25,6 @@ def parse_column_names_from_schema(schema_url='https://schema.broservices.nl/xsd
     column_names = ['penetrationLength', 'depth', 'elapsedTime', 'coneResistance', 'correctedConeResistance', 'netConeResistance', 'magneticFieldStrengthX', 'magneticFieldStrengthY', 'magneticFieldStrengthZ', 'magneticFieldStrengthTotal', 'electricalConductivity', 'inclinationEW', 'inclinationNS', 'inclinationX', 'inclinationY', 'inclinationResultant', 'magneticInclination', 'magneticDeclination', 'localFriction', 'poreRatio', 'temperature', 'porePressureU1', 'porePressureU2', 'porePressureU3', 'frictionRatio']
     return  column_names
 
-
-import requests
-import xml.etree.ElementTree as ET
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import os
-
 def get_brocpt_by_broid(bro_ids, safe_fig=True):
     if isinstance(bro_ids, str):
         bro_ids = [bro_ids]
@@ -39,7 +32,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
     data_dict = {}
     for bro_id in bro_ids:
         url = f"https://publiek.broservices.nl/sr/cpt/v1/objects/{bro_id}"   
-        response = requests.get(url)
+        response = requests.get(url, verify=False)
         
         if response.status_code == 200:
             xml_data = response.content
@@ -86,9 +79,15 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
             
             ax1.plot(df['coneResistance'], surface_level_z - df['depth'], label=bro_id)
             ax2.plot(df['frictionRatio'], surface_level_z - df['depth'], label=bro_id)
-            ax3.plot(df['porePressureU1'], surface_level_z - df['depth'], label=f'{bro_id} U1')
-            ax3.plot(df['porePressureU2'], surface_level_z - df['depth'], label=f'{bro_id} U2')
-            ax3.plot(df['porePressureU3'], surface_level_z - df['depth'], label=f'{bro_id} U3')
+            ax3.plot(
+                df['porePressureU1'], 
+                surface_level_z - df['depth'], 
+                label=f'{bro_id} U1', 
+                color=ax2.get_lines()[-1].get_c(), 
+                linestyle='dashed'
+                )
+            ax3.plot(df['porePressureU2'], surface_level_z - df['depth'], label=f'{bro_id} U2', color=ax2.get_lines()[-1].get_c(), linestyle='solid')
+            ax3.plot(df['porePressureU3'], surface_level_z - df['depth'], label=f'{bro_id} U3', color=ax2.get_lines()[-1].get_c(), linestyle='dashdot')
             ax1.axhline(y=surface_level_z, color='grey', linestyle='--')
             ax2.axhline(y=surface_level_z, color='grey', linestyle='--')
             ax3.axhline(y=surface_level_z, color='grey', linestyle='--')
@@ -96,19 +95,31 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
         ax1.set_xlabel('Cone resistance [MPa]')
         ax1.set_ylabel('depth [m] NAP')
         ax1.set_xlim(0, 30)
-        ax1.grid()
+        ax1.grid(visible=True, which='major', color='grey', linestyle='-')
+        ax1.minorticks_on()
+        ax1.grid(visible=True, which='minor', color='grey', linestyle='--')
         
         ax1.legend(loc=4)
         
         ax2.set_xlabel('Friction ratio [-]')
         ax2.set_xlim(0, 10)
         ax2.invert_xaxis()
-        ax2.grid()
+        ax2.grid(visible=True, which='major', color='grey', linestyle='-')
+        ax2.minorticks_on()
+        ax2.grid(visible=True, which='minor', color='grey', linestyle='--')
+
         
+        ax3_legend = [Line2D([0], [0], color='black', linestyle='dashed', label='u1'),
+                Line2D([0], [0], color='black', linestyle='solid', label='u2'),
+                Line2D([0], [0], color='black', linestyle='dashdot', label='u3')]
         
         ax3.set_xlabel('Pore Pressure [MPa]')
-        ax3.set_xlim(0, 1)
-        ax3.grid()
+        ax3.set_xlim(-0.1, 1)
+        ax3.legend(handles=ax3_legend, loc='lower right')
+        ax3.grid(visible=True, which='major', color='grey', linestyle='-')
+        ax3.minorticks_on()
+        ax3.grid(visible=True, which='minor', color='grey', linestyle='--')
+
         
 
         path = os.path.join(os.path.expanduser("~"), 'Downloads')
@@ -117,7 +128,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
     return data_dict
 
 # Example usage
-cpt_dict = get_brocpt_by_broid(['CPT000000225352', 'CPT000000225353'])
+cpt_dict = get_brocpt_by_broid(['CPT000000225352', 'CPT000000225353', 'CPT000000225395', 'CPT000000225478'])
 for bro_id, data in cpt_dict.items():
     print(f"Data for {bro_id}:")
     print(data['df'].head(100000))
