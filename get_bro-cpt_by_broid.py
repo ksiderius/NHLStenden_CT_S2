@@ -75,22 +75,33 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
         
         for bro_id, data in data_dict.items():
             df = data['df']
-            surface_level_z = data['surface_level_z']
+            df['ref_depth'] = data['surface_level_z'] - df['depth']
+            max_exp_depth = data['surface_level_z'] - df['depth'].iat[-1]
             
-            ax1.plot(df['coneResistance'], surface_level_z - df['depth'], label=bro_id)
+            ax1.plot(
+                df['coneResistance'], 
+                surface_level_z - df['depth'], 
+                label=bro_id
+                )
             ax2.plot(df['frictionRatio'], surface_level_z - df['depth'], label=bro_id)
+            
+            last_color = ax2.get_lines()[-1].get_c()
             ax3.plot(
                 df['porePressureU1'], 
-                surface_level_z - df['depth'], 
+                df['ref_depth'], 
                 label=f'{bro_id} U1', 
-                color=ax2.get_lines()[-1].get_c(), 
+                color=last_color, 
                 linestyle='dashed'
                 )
-            ax3.plot(df['porePressureU2'], surface_level_z - df['depth'], label=f'{bro_id} U2', color=ax2.get_lines()[-1].get_c(), linestyle='solid')
-            ax3.plot(df['porePressureU3'], surface_level_z - df['depth'], label=f'{bro_id} U3', color=ax2.get_lines()[-1].get_c(), linestyle='dashdot')
-            ax1.axhline(y=surface_level_z, color='grey', linestyle='--')
-            ax2.axhline(y=surface_level_z, color='grey', linestyle='--')
-            ax3.axhline(y=surface_level_z, color='grey', linestyle='--')
+            ax3.plot(df['porePressureU2'], df['ref_depth'], label=f'{bro_id} U2', color=last_color, linestyle='solid')
+            ax3.plot(df['porePressureU3'], df['ref_depth'], label=f'{bro_id} U3', color=last_color, linestyle='dashdot')
+            
+            ax1.axhline(y=data['surface_level_z'], color=last_color, linestyle='--')
+            ax2.axhline(y=data['surface_level_z'], color=last_color, linestyle='--')
+            ax3.axhline(y=data['surface_level_z'], color=last_color, linestyle='--')
+            ax1.axhline(y= max_exp_depth, color=last_color, linestyle='--')
+            ax2.axhline(y= max_exp_depth, color=last_color, linestyle='--')
+            ax3.axhline(y= max_exp_depth, color=last_color, linestyle='--')
         
         ax1.set_xlabel('Cone resistance [MPa]')
         ax1.set_ylabel('depth [m] NAP')
@@ -98,7 +109,6 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
         ax1.grid(visible=True, which='major', color='grey', linestyle='-')
         ax1.minorticks_on()
         ax1.grid(visible=True, which='minor', color='grey', linestyle='--')
-        
         ax1.legend(loc=4)
         
         ax2.set_xlabel('Friction ratio [-]')
