@@ -1,8 +1,8 @@
-import requests
+import requests as requests
 import xml.etree.ElementTree as ET
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
+import os as os
 import matplotlib.gridspec as gridspec
 from matplotlib.lines import Line2D
 
@@ -32,7 +32,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
     data_dict = {}
     for bro_id in bro_ids:
         url = f"https://publiek.broservices.nl/sr/cpt/v1/objects/{bro_id}"   
-        response = requests.get(url, verify=False)
+        response = requests.get(url) #if a ssl error occurs try requests.get(url, verify=False)
         
         if response.status_code == 200:
             xml_data = response.content
@@ -91,8 +91,6 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
             
             last_color = ax2.get_lines()[-1].get_c()
             
-            ax2.get_lines()[-1].get_ls()
-            
             ax3.plot(
                 df['porePressureU1'], 
                 df['ref_depth'], 
@@ -125,8 +123,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
             ax.grid(visible=True, which='major', color='grey', linestyle='-')
             ax.minorticks_on()
             ax.grid(visible=True, which='minor', color='grey', linestyle='--')
-            
-        
+               
         ax1.set_xlabel('Cone resistance [MPa]')
         ax1.set_ylabel('depth [m] REF')
         ax1.set_xlim(0, 30)
@@ -139,7 +136,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
                 Line2D([0], [0], color='black', linestyle='solid', label='u2'),
                 Line2D([0], [0], color='black', linestyle='dashdot', label='u3')]
         
-        ax3.set_xlabel('Pore Pressure [MPa]')
+        ax3.set_xlabel('Pore pressure [MPa]')
         ax3.set_xlim(-0.1, 1)
 
         if len(data_dict.items()) <5: #if more than 5 CPT's are selected do not plot legend
@@ -152,9 +149,11 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
 
     return data_dict
 
-# Example usage
-cpt_dict = get_brocpt_by_broid(['CPT000000225352', 'CPT000000225353', 'CPT000000225395', 'CPT000000225478', 'CPT000000225391', 'CPT000000225445'])
-for bro_id, data in cpt_dict.items():
-    print(f"Data for {bro_id}:")
-    print(data['df'].head(100000))
-    print(f"Surface level: {data['surface_level_z']}")
+
+if __name__ == "__main__":
+    # Example usage
+    cpt_dict = get_brocpt_by_broid(['CPT000000225352', 'CPT000000225353', 'CPT000000225395', 'CPT000000225478', 'CPT000000225391', 'CPT000000225445'])
+    for bro_id, data in cpt_dict.items():
+        print(f"Data for {bro_id}:")
+        print(data['df'].head())
+        print(f"Surface level: {data['surface_level_z']}")
