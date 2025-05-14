@@ -32,7 +32,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
     data_dict = {}
     for bro_id in bro_ids:
         url = f"https://publiek.broservices.nl/sr/cpt/v1/objects/{bro_id}"   
-        response = requests.get(url) #if a ssl error occurs try requests.get(url, verify=False)
+        response = requests.get(url, verify=False) #if a ssl error occurs try requests.get(url, verify=False)
         
         if response.status_code == 200:
             xml_data = response.content
@@ -72,10 +72,8 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
         ax1 = fig.add_subplot(gs[0])
         ax2 = fig.add_subplot(gs[1], sharey=ax1)
         ax3 = fig.add_subplot(gs[2], sharey=ax1)
-
-    
+        
         axes = fig.get_axes()
-
 
         for bro_id, data in data_dict.items():
             df = data['df']
@@ -84,10 +82,13 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
             
             ax1.plot(
                 df['coneResistance'], 
-                surface_level_z - df['depth'], 
+                df['ref_depth'], 
                 label=bro_id
                 )
-            ax2.plot(df['frictionRatio'], surface_level_z - df['depth'], label=bro_id)
+            ax2.plot(
+                df['frictionRatio'], 
+                df['ref_depth'], 
+                label=bro_id)
             
             last_color = ax2.get_lines()[-1].get_c()
             
