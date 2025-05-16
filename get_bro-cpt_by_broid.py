@@ -85,6 +85,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
                 df['ref_depth'], 
                 label=bro_id
                 )
+            
             ax2.plot(
                 df['frictionRatio'], 
                 df['ref_depth'], 
@@ -117,13 +118,31 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
                 )
             
             for ax in axes:
-                ax.axhline(y=data['surface_level_z'], color=last_color, linestyle='--')
-                ax.axhline(y= max_exp_depth, color=last_color, linestyle='--')
+                ax.axhline(
+                    y=data['surface_level_z'], 
+                    color=last_color, 
+                    linestyle='--'
+                    )
+                ax.axhline(
+                    y= max_exp_depth, 
+                    color=last_color, 
+                    linestyle='--'
+                    )
         
         for ax in axes:
-            ax.grid(visible=True, which='major', color='grey', linestyle='-')
+            ax.grid(
+                visible=True, 
+                which='major', 
+                color='grey', 
+                linestyle='-'
+                )
             ax.minorticks_on()
-            ax.grid(visible=True, which='minor', color='grey', linestyle='--')
+            ax.grid(
+                visible=True, 
+                which='minor', 
+                color='grey', 
+                linestyle='--'
+                )
                
         ax1.set_xlabel('Cone resistance [MPa]')
         ax1.set_ylabel('depth [m] REF')
@@ -133,9 +152,11 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
         ax2.set_xlim(0, 10)
         ax2.invert_xaxis()
 
-        ax3_legend = [Line2D([0], [0], color='black', linestyle=(0, (1, 1)), label='u1'),
-                Line2D([0], [0], color='black', linestyle='solid', label='u2'),
-                Line2D([0], [0], color='black', linestyle='dashdot', label='u3')]
+        ax3_legend = [
+            Line2D([0], [0], color='black', linestyle=(0, (1, 1)), label='u1'),
+            Line2D([0], [0], color='black', linestyle='solid', label='u2'),
+            Line2D([0], [0], color='black', linestyle='dashdot', label='u3')
+            ]
         
         ax3.set_xlabel('Pore pressure [MPa]')
         ax3.set_xlim(-0.1, 1)
@@ -146,7 +167,14 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
         ax3.legend(handles=ax3_legend, loc='lower right')
 
         path = os.path.join(os.path.expanduser("~"), 'Downloads')
-        fig.savefig(os.path.join(path, 'combined_plot.png'), dpi=300, bbox_inches='tight')
+        fig.savefig(
+            os.path.join(
+                path, 
+                'combined_plot.png'
+                ), 
+            dpi=300, 
+            bbox_inches='tight'
+            )
 
     return data_dict
 
