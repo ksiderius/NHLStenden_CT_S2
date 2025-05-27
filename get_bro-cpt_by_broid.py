@@ -67,7 +67,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
 
     if safe_fig:
         fig = plt.figure(figsize=(12, 16))
-        gs = gridspec.GridSpec(1, 3, width_ratios=[3, 1, 1])
+        gs = gridspec.GridSpec(1, 3, width_ratios=[3, 1, 3]) 
         
         ax1 = fig.add_subplot(gs[0])
         ax2 = fig.add_subplot(gs[1], sharey=ax1)
@@ -160,6 +160,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
         
         ax3.set_xlabel('Pore pressure [MPa]')
         ax3.set_xlim(-0.1, 1)
+        ax3.axvline(x=0, color='black', linewidth=1)
 
         if len(data_dict.items()) <5: #if more than 5 CPT's are selected do not plot legend
             ax1.legend(loc=4)
