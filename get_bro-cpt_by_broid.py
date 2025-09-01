@@ -55,7 +55,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
                 data = [line.split(',') for line in lines if line.strip()]
                 df = pd.DataFrame(data).apply(pd.to_numeric)
                 df.columns = column_names
-                df.sort_values('depth')
+                df = df.sort_values('penetrationLength')
                 data_dict[bro_id] = {'df': df, 'surface_level_z': surface_level_z}
             else:
                 print(f"No <cptcommon:values> element found in the XML for {bro_id}.")
@@ -182,7 +182,7 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
 
 if __name__ == "__main__":
     # Example usage
-    cpt_dict = get_brocpt_by_broid(['CPT000000225352', 'CPT000000225353', 'CPT000000225395', 'CPT000000225478', 'CPT000000225391', 'CPT000000225445'])
+    cpt_dict = get_brocpt_by_broid(['CPT000000007230'])
     for bro_id, data in cpt_dict.items():
         print(f"Data for {bro_id}:")
         print(data['df'].head())
