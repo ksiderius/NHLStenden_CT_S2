@@ -65,125 +65,130 @@ def get_brocpt_by_broid(bro_ids, safe_fig=True):
     if not data_dict:
         return None
 
-    if safe_fig:
-        fig = plt.figure(figsize=(12, 16))
-        gs = gridspec.GridSpec(1, 3, width_ratios=[3, 1, 3]) 
-        
-        ax1 = fig.add_subplot(gs[0])
-        ax2 = fig.add_subplot(gs[1], sharey=ax1)
-        ax3 = fig.add_subplot(gs[2], sharey=ax1)
-        
-        axes = fig.get_axes()
+    return data_dict
 
-        for bro_id, data in data_dict.items():
-            df = data['df']
-            df['ref_depth'] = data['surface_level_z'] - df['depth']
-            max_exp_depth = data['surface_level_z'] - df['depth'].iat[-1]
-            
-            ax1.plot(
-                df['coneResistance'], 
-                df['ref_depth'], 
-                label=bro_id
-                )
-            
-            ax2.plot(
-                df['frictionRatio'], 
-                df['ref_depth'], 
-                label=bro_id)
-            
-            last_color = ax2.get_lines()[-1].get_c()
-            
-            ax3.plot(
-                df['porePressureU1'], 
-                df['ref_depth'], 
-                label=f'{bro_id} U1', 
-                color=last_color, 
-                linestyle=(0, (1, 1))
-                )
-            
-            ax3.plot(
-                df['porePressureU2'], 
-                df['ref_depth'], 
-                label=f'{bro_id} U2', 
-                color=last_color, 
-                linestyle='solid'
-                )
-            
-            ax3.plot(
-                df['porePressureU3'], 
-                df['ref_depth'], 
-                label=f'{bro_id} U3', 
-                color=last_color, 
-                linestyle='dashdot'
-                )
-            
-            for ax in axes:
-                ax.axhline(
-                    y=data['surface_level_z'], 
-                    color=last_color, 
-                    linestyle='--'
-                    )
-                ax.axhline(
-                    y= max_exp_depth, 
-                    color=last_color, 
-                    linestyle='--'
-                    )
+def plot_cpt(data_dict):
+    fig = plt.figure(figsize=(12, 16))
+    gs = gridspec.GridSpec(1, 3, width_ratios=[3, 1, 3]) 
+    
+    ax1 = fig.add_subplot(gs[0])
+    ax2 = fig.add_subplot(gs[1], sharey=ax1)
+    ax3 = fig.add_subplot(gs[2], sharey=ax1)
+    
+    axes = fig.get_axes()
+
+    for bro_id, data in data_dict.items():
+        df = data['df']
+        df['ref_depth'] = data['surface_level_z'] - df['depth']
+        max_exp_depth = data['surface_level_z'] - df['depth'].iat[-1]
+        
+        ax1.plot(
+            df['coneResistance'], 
+            df['ref_depth'], 
+            label=bro_id
+            )
+        
+        ax2.plot(
+            df['frictionRatio'], 
+            df['ref_depth'], 
+            label=bro_id)
+        
+        last_color = ax2.get_lines()[-1].get_c()
+        
+        ax3.plot(
+            df['porePressureU1'], 
+            df['ref_depth'], 
+            label=f'{bro_id} U1', 
+            color=last_color, 
+            linestyle=(0, (1, 1))
+            )
+        
+        ax3.plot(
+            df['porePressureU2'], 
+            df['ref_depth'], 
+            label=f'{bro_id} U2', 
+            color=last_color, 
+            linestyle='solid'
+            )
+        
+        ax3.plot(
+            df['porePressureU3'], 
+            df['ref_depth'], 
+            label=f'{bro_id} U3', 
+            color=last_color, 
+            linestyle='dashdot'
+            )
         
         for ax in axes:
-            ax.grid(
-                visible=True, 
-                which='major', 
-                color='grey', 
-                linestyle='-'
-                )
-            ax.minorticks_on()
-            ax.grid(
-                visible=True, 
-                which='minor', 
-                color='grey', 
+            ax.axhline(
+                y=data['surface_level_z'], 
+                color=last_color, 
                 linestyle='--'
                 )
-               
-        ax1.set_xlabel('Cone resistance [MPa]')
-        ax1.set_ylabel('depth [m] REF')
-        ax1.set_xlim(0, 30)
-
-        ax2.set_xlabel('Friction ratio [-]')
-        ax2.set_xlim(0, 10)
-        ax2.invert_xaxis()
-
-        ax3_legend = [
-            Line2D([0], [0], color='black', linestyle=(0, (1, 1)), label='u1'),
-            Line2D([0], [0], color='black', linestyle='solid', label='u2'),
-            Line2D([0], [0], color='black', linestyle='dashdot', label='u3')
-            ]
-        
-        ax3.set_xlabel('Pore pressure [MPa]')
-        ax3.set_xlim(-0.1, 1)
-        ax3.axvline(x=0, color='black', linewidth=1)
-
-        if len(data_dict.items()) <5: #if more than 5 CPT's are selected do not plot legend
-            ax1.legend(loc=4)
-            
-        ax3.legend(handles=ax3_legend, loc='lower right')
-
-        path = os.path.join(os.path.expanduser("~"), 'Downloads')
-        fig.savefig(
-            os.path.join(
-                path, 
-                'combined_plot.png'
-                ), 
-            dpi=300, 
-            bbox_inches='tight'
+            ax.axhline(
+                y= max_exp_depth, 
+                color=last_color, 
+                linestyle='--'
+                )
+    
+    for ax in axes:
+        ax.grid(
+            visible=True, 
+            which='major', 
+            color='grey', 
+            linestyle='-'
             )
+        ax.minorticks_on()
+        ax.grid(
+            visible=True, 
+            which='minor', 
+            color='grey', 
+            linestyle='--'
+            )
+           
+    ax1.set_xlabel('Cone resistance [MPa]')
+    ax1.set_ylabel('depth [m] REF')
+    ax1.set_xlim(0, 30)
 
-    return data_dict
+    ax2.set_xlabel('Friction ratio [-]')
+    ax2.set_xlim(0, 10)
+    ax2.invert_xaxis()
+
+    ax3_legend = [
+        Line2D([0], [0], color='black', linestyle=(0, (1, 1)), label='u1'),
+        Line2D([0], [0], color='black', linestyle='solid', label='u2'),
+        Line2D([0], [0], color='black', linestyle='dashdot', label='u3')
+        ]
+    
+    ax3.set_xlabel('Pore pressure [MPa]')
+    ax3.set_xlim(-0.1, 1)
+    ax3.axvline(x=0, color='black', linewidth=1)
+
+    if len(data_dict.items()) <5: #if more than 5 CPT's are selected do not plot legend
+        ax1.legend(loc=4)
+        
+    ax3.legend(handles=ax3_legend, loc='lower right')
+
+    path = os.path.join(os.path.expanduser("~"), 'Downloads')
+    fig.savefig(
+        os.path.join(
+            path, 
+            'combined_plot.png'
+            ), 
+        dpi=300, 
+        bbox_inches='tight'
+        )
 
 
 if __name__ == "__main__":
     # Example usage
-    cpt_dict = get_brocpt_by_broid(['CPT000000007230'])
+    cpt_dict = get_brocpt_by_broid(['CPT000000160721'])
     for bro_id, data in cpt_dict.items():
         print(f"Data for {bro_id}:")
         print(data['df'].head())
         print(f"Surface level: {data['surface_level_z']}")
+    plot_cpt(cpt_dict)
+    
+    for key in cpt_dict:
+        print(cpt_dict[key])
+
